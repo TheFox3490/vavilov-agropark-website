@@ -1,0 +1,289 @@
+/* --- Секция «Мы предлагаем» ---------------------------------------------- */
+
+.offer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 0.5rem + 3vw, 4rem);
+  padding: clamp(1.25rem, 0.5rem + 2.2vw, 2.5rem);
+}
+
+.offer__card {
+  position: relative;
+  margin: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--sh-raised);
+  aspect-ratio: 16 / 11;
+}
+
+.offer__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.offer__card figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 55%);
+}
+
+.offer__card h3 {
+  font-family: var(--font-body);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.offer__card figcaption p {
+  margin-top: 0.35rem;
+  max-width: 32rem;
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+
+.offer__card-arrow {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.6rem;
+  font-size: 1.4rem;
+}
+
+.offer__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.offer__text h2 {
+  font-size: var(--fs-h2);
+  margin-bottom: 0.5rem;
+}
+
+.offer__text p {
+  color: var(--c-text-dim);
+}
+
+.offer__text .btn {
+  align-self: flex-start;
+  margin-top: 1rem;
+}
+
+/* --- Секция «Наши проекты» ----------------------------------------------- */
+
+.projects {
+  padding: clamp(1.5rem, 0.6rem + 2.6vw, 3rem);
+
+  /* Пропорции сняты с макета: центральная карточка горизонтальная, 1.45:1,
+     боковые — 1.4:1 и вдвое меньше по площади. Обычно ряд занимает ширину
+     панели целиком; потолок высоты вступает в дело только на низком окне,
+     и тогда ряд уменьшается целиком, оставаясь симметричным. */
+  --projects-ratio: 1.45;
+  --projects-card-h: min(52vh, 26rem);
+  --projects-card-w: calc(var(--projects-card-h) * var(--projects-ratio));
+  --projects-gap: clamp(0.75rem, 0.3rem + 1.4vw, 1.75rem);
+}
+
+.projects__title {
+  font-size: var(--fs-h2);
+  text-align: center;
+  margin-bottom: clamp(1.5rem, 0.8rem + 2vw, 3rem);
+}
+
+.projects__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr) minmax(0, 0.62fr);
+  align-items: center;
+  gap: var(--projects-gap);
+  /* Потолок ширины считается из потолка высоты: 1fr + две боковые по 0.62fr
+     плюс зазоры. Так центральная карточка всегда заполняет свою колонку —
+     иначе она прижималась к левому краю и оказывалась уже боковых,
+     и блок выглядел перекошенным. */
+  max-width: calc(var(--projects-card-w) * 2.24 + var(--projects-gap) * 2);
+  margin-inline: auto;
+  /* Вертикальную прокрутку оставляем браузеру, горизонтальные жесты забираем
+     себе: иначе смахивание вбок уводит назад по истории. */
+  touch-action: pan-y;
+  /* Текст внутри карточки не выделяется: при смахивании выделение
+     подхватывалось и мешало жесту. */
+  user-select: none;
+}
+
+/* Боковые карточки — соседние проекты «на фоне». Нажатие ставит их в центр. */
+.projects__side {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.4;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: none;
+  box-shadow: var(--sh-card);
+  opacity: 0.75;
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+}
+
+.projects__side img,
+.projects__side .picture-stub {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .projects__side:hover {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.projects__featured {
+  position: relative;
+  display: block;
+  color: inherit;
+  width: 100%;
+  aspect-ratio: var(--projects-ratio);
+  /* На всякий случай: если потолок высоты всё-таки сожмёт карточку по ширине,
+     она останется посередине колонки, а не уедет к её краю. */
+  max-height: var(--projects-card-h);
+  justify-self: center;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--sh-raised);
+}
+
+.projects__featured img,
+.projects__featured .picture-stub {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Подложка с отступами и сам текст разделены намеренно. Обрезка по строкам
+   режет по краю содержимого, а внутренний отступ снизу как раз высотой
+   со строку — и в него пролезала лишняя строка уже после многоточия. */
+.projects__caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.88) 40%);
+}
+
+.projects__featured p {
+  font-size: var(--fs-sm);
+  /* Описания у проектов разной длины: подрезаем, чтобы подпись
+     не закрывала фотографию целиком. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+.projects__badge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  padding: 0.5rem 1.4rem;
+  border-radius: var(--r-pill);
+  background: rgba(12, 11, 17, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Точки под карточкой: на широком экране показывают, сколько всего проектов,
+   на узком — единственный способ переключения, когда боковые карточки скрыты. */
+.projects__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: clamp(1rem, 0.6rem + 1vw, 1.75rem);
+}
+
+.projects__dot {
+  position: relative;
+  width: 0.6rem;
+  height: 0.6rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.projects__dot--active {
+  background: var(--c-blue);
+  transform: scale(1.25);
+}
+
+/* Попасть пальцем в точку 10 px нельзя, поэтому расширяем область нажатия
+   прозрачным полем вокруг, не трогая внешний вид. */
+.projects__dot::after {
+  content: "";
+  position: absolute;
+  inset: -0.6rem;
+}
+
+@media (max-width: 900px) {
+  .offer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .projects__grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: none;
+  }
+
+  /* Втроём на узком экране карточки дают полоски по 60 px, в которых ничего
+     не разобрать. Боковые убираем, переключение остаётся на точках. */
+  .projects__side {
+    display: none;
+  }
+
+  /* На узком экране описание длиннее карточки и, лёжа поверх фотографии,
+     закрывало её целиком. Раскладываем в столбик: сверху снимок, под ним текст. */
+  .projects__featured {
+    aspect-ratio: auto;
+    max-height: none;
+    order: -1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(30, 27, 40, 0.55);
+  }
+
+  .projects__featured img,
+  .projects__featured .picture-stub {
+    position: static;
+    width: 100%;
+    height: clamp(11rem, 8rem + 14vw, 16rem);
+  }
+
+  /* В столбике бейдж уже не лежит на фотографии — ставим его над текстом,
+     иначе он перекрывает как раз середину снимка. */
+  .projects__badge {
+    position: static;
+    align-self: flex-start;
+    margin: 1.15rem 1.15rem 0;
+  }
+
+  .projects__caption {
+    position: static;
+    background: none;
+    padding: 1.15rem;
+  }
+
+  .projects__featured p {
+    -webkit-line-clamp: 5;
+  }
+}

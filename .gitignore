@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+figma-export/
+
+# Локальные настройки инструментов разработки.
+.claude/
+
+# Резервные копии: содержимое базы и загруженные файлы, не для репозитория.
+backups/

@@ -1,0 +1,499 @@
+@import "./news.css";
+
+.admin {
+  padding: clamp(1.5rem, 0.6rem + 2.6vw, 3rem);
+}
+
+.admin__title {
+  font-size: var(--fs-h2);
+  margin-bottom: 1.5rem;
+}
+
+.admin__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.admin__hint {
+  color: var(--c-text-dim);
+}
+
+/* --- Заявки -------------------------------------------------------------- */
+
+.admin__table-wrap {
+  overflow-x: auto;
+}
+
+.admin__table {
+  width: 100%;
+  min-width: 46rem;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.admin__table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: var(--c-text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.admin__table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+
+.admin__table tr.is-handled {
+  opacity: 0.5;
+}
+
+.admin__nowrap {
+  white-space: nowrap;
+}
+
+.admin__message {
+  max-width: 28rem;
+  color: var(--c-text-dim);
+}
+
+/* --- Новости ------------------------------------------------------------- */
+
+.admin__news {
+  display: grid;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  gap: clamp(1.5rem, 0.7rem + 2.4vw, 3rem);
+  align-items: start;
+}
+
+.admin__news h3 {
+  font-size: var(--fs-h4);
+  margin-bottom: 1rem;
+}
+
+/* Форма переиспользуется со страницы новостей, где она живёт в грид-ячейке
+   высотой в две строки. Здесь ячейки нет — задаём высоту явно. */
+.admin__create-form {
+  display: grid;
+}
+
+.admin__create-form .news-form {
+  grid-row: auto;
+  min-height: 30rem;
+}
+
+.admin__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin__row {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--r-sm);
+  background: rgba(30, 27, 40, 0.6);
+}
+
+.admin__row img,
+.admin__row-stub {
+  width: 5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  border-radius: var(--r-xs);
+}
+
+.admin__row-stub {
+  display: block;
+  background: linear-gradient(135deg, #262330, #1a1823);
+}
+
+.admin__row-body h4 {
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.admin__row-meta {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+}
+
+.admin__row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin__chip,
+.admin__danger {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--c-text-dim);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease);
+}
+
+/* Правила наведения включаются только там, где есть настоящий курсор.
+   На тач-экранах браузер держит :hover после касания до следующего тапа,
+   из-за чего нажатые элементы залипали в наведённом состоянии. */
+@media (hover: hover) and (pointer: fine) {
+  .admin__chip:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--c-text);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .admin__danger:hover {
+    background: rgba(255, 10, 230, 0.18);
+    border-color: rgba(255, 10, 230, 0.5);
+    color: var(--c-text);
+  }
+}
+
+/* --- Модалка редактирования ---------------------------------------------- */
+
+.admin__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin__edit h3 {
+  font-size: var(--fs-h4);
+}
+
+.admin__edit select.input {
+  appearance: auto;
+}
+
+.admin__edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1000px) {
+  .admin__news {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin__row {
+    grid-template-columns: 4rem minmax(0, 1fr);
+  }
+
+  .admin__row-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- Состав центра -------------------------------------------------------- */
+
+.admin__staff-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.admin__staff-head .admin__hint {
+  max-width: 42rem;
+  font-size: var(--fs-sm);
+}
+
+/* Поля имени идут в строку: фамилия, имя, отчество рядом читаются как одно целое. */
+.admin__staff-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.admin__staff-photo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin__staff-photo img,
+.admin__staff-photo-stub {
+  width: 5.5rem;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: var(--r-xs);
+  flex-shrink: 0;
+}
+
+.admin__staff-photo-stub {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--c-line);
+  color: var(--c-text-muted);
+  font-size: 1.4rem;
+}
+
+.admin__staff-photo-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.admin__row-actions .admin__chip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* --- Каталог: проекты и услуги -------------------------------------------- */
+
+.admin__catalog-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.field__hint {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+/* Высоту задаём селектором с именем тега: базовое правило .textarea лежит
+   в global.css, у него та же специфичность, а в собранном бандле оно
+   оказывается ниже — и одноклассовый модификатор молча не срабатывал.
+
+   Краткое описание короче основного текста — иначе форма растягивается зря. */
+textarea.textarea--short {
+  min-height: 4.5rem;
+}
+
+input.input--sm {
+  padding: 0.5rem 0.7rem;
+  font-size: var(--fs-sm);
+}
+
+/* Длинный текст: описание проекта, услуги, новости, юридический документ.
+   Всё это по несколько абзацев, и в поле высотой в четыре строки такое
+   не написать и не вычитать. Шрифт мельче обычного — чтобы на экран
+   помещалось больше строк, а не чтобы читать было труднее. */
+textarea.textarea--long {
+  min-height: 22rem;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+/* Превью обложки. Размер задан жёстко и по высоте тоже: картинка здесь нужна
+   для опознания, а не для разглядывания, и не должна выдавливать поля формы
+   за пределы модалки. */
+.admin__cover {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin__cover-preview {
+  width: 9rem;
+  height: 5.0625rem; /* 16:9 при ширине 9rem */
+  object-fit: cover;
+  border-radius: var(--r-xs);
+  flex-shrink: 0;
+}
+
+.admin__cover-stub {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--c-line);
+  color: var(--c-text-muted);
+  font-size: 1.4rem;
+}
+
+.admin__cover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin__gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin__gallery-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.admin__gallery-thumb {
+  width: 6.5rem;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--r-xs);
+}
+
+.admin__gallery-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.admin__gallery-num {
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+
+.admin__gallery-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* На узком экране строка складывается: миниатюра и кнопки в первой строке,
+   поле подписи — во всю ширину во второй. Иначе поле сжимается до пары слов. */
+@media (max-width: 620px) {
+  .admin__gallery-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .admin__gallery-thumb {
+    grid-area: 1 / 1;
+  }
+
+  .admin__gallery-actions {
+    grid-area: 1 / 2;
+    justify-content: flex-end;
+  }
+
+  .admin__gallery-fields {
+    grid-column: 1 / -1;
+  }
+}
+
+.admin__gallery-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--c-text-dim);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.admin__gallery-add-hint {
+  color: var(--c-text-muted);
+}
+
+.admin__gallery-add:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .admin__gallery-add:hover:not(:disabled) {
+    border-color: var(--c-blue);
+    color: var(--c-text);
+  }
+}
+
+/* Группа полей внутри формы — сейчас это карусель первого экрана.
+   Рамка нужна, чтобы «короткое имя» и «кадр для карточки» не путались
+   с названием и главной картинкой проекта. */
+.admin__group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 1.25rem;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+}
+
+.admin__group legend {
+  padding: 0 0.5rem;
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+
+/* Выбор кадра из уже загруженной галереи проекта. */
+.admin__cover-pick {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-sm);
+}
+
+.admin__cover-option {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  background: none;
+  cursor: pointer;
+}
+
+.admin__cover-option img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.admin__cover-option.is-current {
+  border-color: var(--c-blue);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .admin__cover-option:hover {
+    border-color: var(--c-line);
+  }
+
+  .admin__cover-option.is-current:hover {
+    border-color: var(--c-blue);
+  }
+}
+
+/* --- Настройки сайта ------------------------------------------------------ */
+
+.admin__site {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin__doc {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.admin__doc:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+

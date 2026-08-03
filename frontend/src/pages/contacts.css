@@ -1,0 +1,235 @@
+.contacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 0.4rem + 1.8vw, 2rem);
+}
+
+.contacts__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: clamp(1.25rem, 0.6rem + 1.8vw, 2.5rem);
+}
+
+.contacts__card h2 {
+  font-size: var(--fs-h3);
+  margin-bottom: 0.5rem;
+}
+
+.contacts__card p {
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+}
+
+.contacts__card b {
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+/* Правила наведения включаются только там, где есть настоящий курсор.
+   На тач-экранах браузер держит :hover после касания до следующего тапа,
+   из-за чего нажатые элементы залипали в наведённом состоянии. */
+@media (hover: hover) and (pointer: fine) {
+  .contacts__card a:hover {
+    text-decoration: underline;
+  }
+}
+
+/* --- Состав центра ------------------------------------------------------- */
+
+/* Панель с составом занимает всю ширину сетки: в макете на её месте была
+   одна карточка руководителя, теперь это лента из всех сотрудников. */
+.contacts__staff {
+  grid-column: 1 / -1;
+}
+
+.staff__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.staff__nav {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.staff__hint {
+  color: var(--c-text-dim);
+}
+
+.staff__track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+}
+
+.staff__track::-webkit-scrollbar {
+  display: none;
+}
+
+.staff-card {
+  flex: 0 0 clamp(15rem, 12rem + 8vw, 19rem);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-md);
+  background: rgba(30, 27, 40, 0.6);
+  overflow: hidden;
+}
+
+.staff-card__photo {
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(140deg, #2a2636, #17151f);
+  flex: none;
+  /* Кадр задаётся жёстко. Без этого высоту блока диктовала сама фотография:
+     при height: 100% в блоке с авто-высотой картинка разворачивается
+     в свои натуральные пропорции, и у разных сотрудников кадр получался
+     разной высоты — лента выглядела рваной. */
+  position: relative;
+  overflow: hidden;
+}
+
+.staff-card__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.staff-card__stub {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 4rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.staff-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem;
+  flex: 1;
+}
+
+.staff-card__role {
+  font-size: 0.78rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-muted) !important;
+}
+
+.staff-card__name {
+  font-size: var(--fs-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  /* Отчество может отсутствовать — строка просто становится короче. */
+  line-height: 1.3;
+}
+
+.staff-card__contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+}
+
+.staff-card__contacts a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+  /* Длинная почта не должна распирать карточку. */
+  min-width: 0;
+}
+
+.staff-card__contacts a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-card__contacts svg {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .staff-card__contacts a:hover {
+    color: var(--c-text);
+  }
+}
+
+.contacts__form-wrap {
+  justify-content: flex-start;
+}
+
+.contacts__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1rem, 0.5rem + 1.4vw, 1.75rem);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+}
+
+.contacts__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: var(--fs-sm);
+  color: var(--c-text-dim);
+  cursor: pointer;
+}
+
+.contacts__consent input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  accent-color: var(--c-blue);
+  flex-shrink: 0;
+}
+
+.contacts__consent a {
+  text-decoration: underline;
+  color: var(--c-text);
+}
+
+.contacts__submit {
+  align-self: flex-start;
+}
+
+.contacts__map {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-height: 24rem;
+  box-shadow: var(--sh-raised);
+}
+
+.contacts__map iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 24rem;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .contacts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contacts__head {
+    flex-direction: column;
+  }
+}

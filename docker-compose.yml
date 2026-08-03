@@ -1,0 +1,73 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agropark}
+      POSTGRES_USER: ${POSTGRES_USER:-agropark}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Задай POSTGRES_PASSWORD в .env}
+    volumes:
+      # В образах postgres 18+ том вешается на /var/lib/postgresql, а не на
+      # вложенный /var/lib/postgresql/data — иначе контейнер уходит в рестарт.
+      - db_data:/var/lib/postgresql
+    # Порт наружу намеренно не открыт: база доступна только внутри сети compose.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agropark} -d ${POSTGRES_DB:-agropark}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-agropark}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-agropark}
+      SECRET_KEY: ${SECRET_KEY:?Задай SECRET_KEY в .env}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-${SECRET_KEY}}
+      JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-true}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+      REQUIRE_EMAIL_CONFIRMATION: ${REQUIRE_EMAIL_CONFIRMATION:-true}
+      UPLOAD_DIR: /app/uploads
+      # Первый администратор создаётся автоматически при старте.
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Почта — любой внешний SMTP, свой сервер поднимать не нужно.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      SMTP_USE_SSL: ${SMTP_USE_SSL:-false}
+      MAIL_FROM: ${MAIL_FROM:-noreply@agropark.local}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Агропарк Вавиловского университета}
+      CONTACT_NOTIFY_TO: ${CONTACT_NOTIFY_TO:-}
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    volumes:
+      # Тот же том, что у бэкенда, но только на чтение — nginx лишь раздаёт файлы.
+      - uploads:/var/www/uploads:ro
+    ports:
+      # Единственный порт наружу. Внешний nginx на сервере проксирует сюда,
+      # он же занимается доменом и TLS-сертификатом.
+      - "${HTTP_PORT:-8080}:80"
+
+volumes:
+  db_data:
+  uploads:

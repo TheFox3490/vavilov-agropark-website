@@ -1,0 +1,415 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  /* Макетные 970px, но не выше самого окна: иначе на низком экране первый
+     экран распирало бы минимальной высотой, даже когда содержимое влезает.
+     dvh учитывает сворачивающиеся панели мобильных браузеров. */
+  min-height: min(clamp(28rem, 14rem + 42vw, 60.6rem), 100vh);
+  min-height: min(clamp(28rem, 14rem + 42vw, 60.6rem), 100dvh);
+  display: flex;
+  /* Не center: наш текстовый блок ниже макетного, и центрирование сталкивало
+     содержимое вниз — между шапкой и заголовком появлялось ~100 лишних пикселей.
+     Прижимаем к верху и задаём отступ явно, по замерам макета. */
+  align-items: stretch;
+  margin-top: calc(var(--header-h) * -1);
+  padding-top: var(--header-h);
+  overflow: hidden;
+}
+
+.hero--compact {
+  min-height: clamp(20rem, 12rem + 24vw, 36rem);
+}
+
+/* Под первым экраном в макете зазор 91px — заметно больше, чем между
+   остальными блоками, поэтому первой секции даём собственный отступ. */
+.hero + .section {
+  padding-top: clamp(2rem, 1rem + 3.9vw, 5.7rem);
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Дизайнер отзеркалила фотографию: в исходнике человек слева и смотрит вправо,
+     в макете — справа и смотрит на заголовок. Повторяем отражением. */
+  transform: scaleX(-1);
+  /* Кроп по вертикали взят из imageTransform слоя: показываем 75,8 % высоты
+     со смещением 23 % сверху — ровно как в макете. */
+  object-position: center 23%;
+}
+
+/* Слева фотография уходит в фон, чтобы белый заголовок читался. */
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(18, 17, 24, 0.92) 0%, rgba(18, 17, 24, 0.55) 38%, rgba(18, 17, 24, 0) 68%),
+    linear-gradient(180deg, rgba(18, 17, 24, 0.6) 0%, rgba(18, 17, 24, 0) 28%, rgba(18, 17, 24, 0.9) 100%);
+}
+
+.hero__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hero-gap);
+  width: 100%;
+  /* В макете заголовок стоит на 175px от верха первого экрана, из которых
+     88px занимает шапка — остаётся 87px собственного отступа (5.45rem).
+     На низком окне значения ужимаются, см. tokens.css. */
+  padding-top: var(--hero-pad-top);
+  padding-bottom: var(--hero-pad-bottom);
+}
+
+.hero__text {
+  flex: 1;
+  min-width: 0;
+  /* В макете текстовый блок 830px, но Geologica в браузере набирает
+     «АГРОРОБОТОТЕХНИКИ,» на 858px — при 54rem оставалось 6px запаса,
+     и строка балансировала на грани разрыва. Даём воздуха. */
+  max-width: 56rem;
+}
+
+.hero__title {
+  font-size: var(--fs-hero);
+  line-height: var(--lh-hero);
+  text-transform: uppercase;
+  max-width: 16em;
+  /* Уважает переводы строк из текста и при этом разрешает перенос дальше. */
+  white-space: pre-line;
+  /* Аварийный перенос: срабатывает, только если слово физически не влезает
+     в строку. Переносы по слогам (hyphens) намеренно не включаем — иначе
+     браузер дробит «АГРОРОБОТОТЕХНИКИ» ради плотности набора,
+     хотя целиком оно помещается, и разбивка перестаёт совпадать с макетом. */
+  overflow-wrap: break-word;
+}
+
+.hero__lead {
+  /* В макете абзац идёт почти вплотную к заголовку: воздух даёт межстрочный
+     интервал самого заголовка, а не отступ. */
+  margin-top: 0.5rem;
+  max-width: 50rem;
+  font-size: var(--fs-md);
+  color: var(--c-text-dim);
+}
+
+.hero__socials {
+  flex-shrink: 0;
+}
+
+/* Нижняя строка прижата к низу первого экрана: в макете низ карусели
+   на 70px выше нижнего края, это задаёт padding-bottom у .hero__inner. */
+.hero__bottom {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 0.4rem + 2vw, 3rem);
+  width: 100%;
+  margin-top: auto;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: var(--hero-actions-mt);
+}
+
+/* Очень низкое окно (нетбуки, 600px и ниже). Тут упираемся в то, что вообще
+   не масштабируется по высоте: абзац и кнопку. Ужимаем и их — иначе первый
+   экран не помещается, сколько ни сжимай остальное. */
+@media (max-height: 660px) {
+  .hero__lead {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .hero__actions .btn {
+    padding: 0.6em 1.5em;
+    font-size: var(--fs-sm);
+  }
+}
+
+/* --- Слайдер проектов на первом экране главной ---------------------------- */
+
+/* Абсолютного позиционирования больше нет: раньше карусель висела в правом
+   нижнем углу и жила отдельно от иконок — они не выравнивались между собой
+   и наезжали друг на друга на средних ширинах. Плюс при переключении
+   на position: relative оставшийся right сдвигал карусель влево на величину
+   отступа, из-за чего на телефоне она вылезала за поле контента. */
+.hero__cards {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  /* Три карточки по 285 с шагом 24 дают трек 903px; плюс две стрелки
+     по 32px с зазорами — итого 983px (61.4rem). */
+  max-width: 62rem;
+}
+
+/* Место под карусель, пока карточки едут из базы. Высота первого экрана
+   выверена по пикселям, и без брони страница дёргалась бы при каждом заходе:
+   сначала экран без карусели, потом рывком с ней. */
+.hero__cards--loading {
+  min-height: var(--hero-card-h);
+}
+
+/* Трек с прокруткой: в макете видно три карточки из восьми. */
+.hero__track {
+  display: flex;
+  /* Сколько карточек помещается в видимую часть. Ширина карточки считается
+     от ширины трека, иначе на промежуточных экранах в него влезало
+     3,5 карточки и последняя обрезалась по краю. */
+  --cards-visible: 3;
+  --card-gap: clamp(0.75rem, 0.2rem + 1.1vw, 1.5rem); /* в макете 24px */
+  gap: var(--card-gap);
+  /* min-width: 0 обязателен: без него флекс-элемент отказывается сжиматься
+     до ширины родителя и трек вылезает за экран. */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-block: 0.25rem;
+}
+
+.hero__track::-webkit-scrollbar {
+  display: none;
+}
+
+.hero__nav {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2.75rem;
+  border: none;
+  background: none;
+  color: var(--c-text);
+  font-size: 1.4rem;
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+}
+
+.hero__nav:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Правила наведения включаются только там, где есть настоящий курсор.
+   На тач-экранах браузер держит :hover после касания до следующего тапа,
+   из-за чего нажатые элементы залипали в наведённом состоянии. */
+@media (hover: hover) and (pointer: fine) {
+  .hero__nav:not(:disabled):hover {
+    color: var(--c-blue-bright);
+  }
+}
+
+.hero__nav--prev svg {
+  transform: rotate(90deg);
+}
+
+.hero__nav--next svg {
+  transform: rotate(-90deg);
+}
+
+.hero-card {
+  position: relative;
+  isolation: isolate;
+  /* Ширина считается от трека, чтобы в видимой части всегда лежало
+     целое число карточек. При ширине экрана 1920 выходит 288px — макетные 285. */
+  flex: 0 0 calc(
+    (100% - (var(--cards-visible) - 1) * var(--card-gap)) / var(--cards-visible)
+  );
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  min-height: var(--hero-card-h);
+  padding: 1rem 1.1rem;
+  border-radius: var(--r-md);
+  background: rgba(12, 11, 17, 0.72);
+  box-shadow: var(--sh-card);
+  overflow: hidden;
+  transition: transform 0.2s var(--ease);
+}
+
+/* Картинка проекта — в макете она занимает верхнюю часть карточки
+   и уходит в затемнение, поверх которого лежит подпись. */
+.hero-card img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-card__shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 11, 17, 0.15) 0%,
+    rgba(12, 11, 17, 0.75) 52%,
+    rgba(12, 11, 17, 0.95) 100%
+  );
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Номер стоит в потоке, а не absolute: при длинной подписи, которая
+   переносится на две строки, содержимое подрастало вверх и налезало
+   на номер — на узких карточках («Учёта больных животных») это ломало вид.
+   margin-bottom: auto прижимает номер к верху, остальное — к низу. */
+.hero-card__num {
+  margin-bottom: auto;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.hero-card__kind {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hero-card__name {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-dim);
+  /* Освобождаем место под стрелку в правом нижнем углу: её правый край
+     на 16px, ширина ~18px — 1.75rem не хватало, текст подходил вплотную. */
+  padding-right: 2.5rem;
+}
+
+.hero-card__arrow {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+/* --- Адаптив ------------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+  /* Места на строку уже не хватает: иконки уходят строкой над каруселью,
+     карусель занимает всю ширину поля контента. */
+  .hero__bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .hero__socials {
+    flex-direction: row;
+  }
+
+  .hero__cards {
+    position: relative;
+    max-width: none;
+    margin-left: 0;
+  }
+
+  /* Стрелки становятся накладными. В потоке кнопка «назад» сдвигала трек
+     на свою ширину, и левый край карточек переставал совпадать
+     с заголовком и иконками. */
+  .hero__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: rgba(12, 11, 17, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .hero__nav--prev {
+    left: 0.4rem;
+  }
+
+  .hero__nav--next {
+    right: 0.4rem;
+  }
+}
+
+@media (max-width: 900px) {
+  /* На узком экране высоту задаёт содержимое, а не макетные 970px. */
+  .hero {
+    min-height: 0;
+  }
+
+  .hero__inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .hero__text,
+  .hero__title,
+  .hero__lead {
+    max-width: none;
+  }
+
+  /* На узком экране колонка иконок разворачивается в строку. */
+  .hero__socials {
+    flex-direction: row;
+    padding-left: 0;
+    margin-top: 1.5rem;
+  }
+
+  /* Горизонтальное затемнение на вертикальном экране не работает —
+     заменяем его на вертикальное, иначе белый текст теряется на фото. */
+  .hero__veil {
+    background: linear-gradient(
+      180deg,
+      rgba(18, 17, 24, 0.86) 0%,
+      rgba(18, 17, 24, 0.62) 45%,
+      rgba(18, 17, 24, 0.95) 100%
+    );
+  }
+
+  /* Кадр вертикальный: держим человека в поле зрения.
+     Координата X задаётся до отражения, поэтому 32 % — это он и есть. */
+  .hero__media img {
+    object-position: 32% 20%;
+  }
+
+  .hero__actions {
+    margin-top: 1.75rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero__track {
+    --cards-visible: 2.2;
+  }
+}
+
+@media (max-width: 700px) {
+  /* Стрелки прячем — на телефоне листают свайпом. */
+  .hero__nav {
+    display: none;
+  }
+
+  .hero__track {
+    --cards-visible: 1.25;
+  }
+}

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#191720" />
+    <!-- Заголовок, описание и карточка ссылки собираются на сервере и
+         вклеиваются сюда nginx: Telegram, ВКонтакте и поисковые роботы
+         не выполняют JavaScript и видят только этот HTML.
+         В режиме разработки (vite) SSI нет — заголовок ставит приложение. -->
+    <!--#include virtual="/api/meta?path=$request_uri" -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

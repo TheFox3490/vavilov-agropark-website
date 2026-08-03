@@ -1,0 +1,390 @@
+/* --- Фоновый слой из 3D-объектов ----------------------------------------- */
+
+/* Обёртка всей страницы: даёт слою фигур систему координат на всю высоту
+   документа. Намеренно без overflow — он сломал бы липкую шапку. */
+.page {
+  position: relative;
+}
+
+.shapes {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --s — ширина объекта в макете при странице 1920px, --x/--y — доля от слоя.
+   Размер задаём в vw, поэтому композиция сохраняет пропорции на любом экране. */
+.shape {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: calc(var(--s) * 100vw / 1920);
+  height: auto;
+  max-width: none;
+  transform: translate(-50%, -50%);
+}
+
+/* Прореживание по ярусам убрано: количество объектов теперь считает
+   сам компонент от длины страницы (см. Shapes.jsx), поэтому плотность
+   одинакова и на короткой, и на длинной странице. */
+@media (max-width: 600px) {
+  /* Совсем мелкий экран: объекты крупнее относительно ширины, иначе теряются. */
+  .shape {
+    width: calc(var(--s) * 150vw / 1920);
+  }
+}
+
+/* --- Логотип ------------------------------------------------------------- */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.logo__mark {
+  font-size: 3.1rem;
+  color: var(--c-text);
+}
+
+.logo__text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.logo__text small {
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--c-text-dim);
+}
+
+/* --- Шапка --------------------------------------------------------------- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(18, 17, 24, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: var(--header-h);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 0.2rem + 1.9vw, 2.75rem);
+  margin-inline: auto;
+}
+
+.nav__link {
+  position: relative;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--c-text-dim);
+  padding-block: 0.4rem;
+  transition: color 0.18s var(--ease);
+  white-space: nowrap;
+}
+
+/* Число необработанных заявок рядом с ссылкой на админку. Смысл значка —
+   чтобы обращение заметили, поэтому он висит в шапке на каждой странице,
+   а не только внутри админки. */
+.nav__badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  border-radius: var(--r-pill);
+  background: var(--c-magenta);
+  color: var(--c-text);
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* Правила наведения включаются только там, где есть настоящий курсор.
+   На тач-экранах браузер держит :hover после касания до следующего тапа,
+   из-за чего нажатые элементы залипали в наведённом состоянии. */
+@media (hover: hover) and (pointer: fine) {
+  .nav__link:hover {
+    color: var(--c-text);
+  }
+}
+
+.nav__link--active {
+  color: var(--c-text);
+}
+
+.nav__link--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+}
+
+.header__account {
+  flex-shrink: 0;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.account__name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.account__avatar {
+  font-size: 1.75rem;
+}
+
+.account__exit {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .account__exit:hover {
+    color: var(--c-text);
+  }
+}
+
+/* --- Бургер (в макете есть на первом экране) ----------------------------- */
+
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: 34px;
+  height: 30px;
+  order: 3;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.burger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--c-text);
+  transition: transform 0.22s var(--ease), opacity 0.22s var(--ease);
+}
+
+.burger--open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.burger--open span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger--open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* --- Соцсети ------------------------------------------------------------- */
+
+.socials {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  font-size: 1.25rem;
+}
+
+.socials a {
+  /* grid убирает слак от line-height: иначе колонка иконок вырастала
+     до 181px вместо макетных 126 и не совпадала по высоте с каруселью. */
+  display: grid;
+  place-items: center;
+  color: var(--c-text-dim);
+  transition: color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .socials a:hover {
+    color: var(--c-text);
+    transform: translateY(-2px);
+  }
+}
+
+.socials--row {
+  flex-direction: row;
+  gap: 1.35rem;
+}
+
+/* --- Основная область ---------------------------------------------------- */
+
+.main {
+  position: relative;
+  z-index: 1;
+  min-height: 60vh;
+}
+
+/* --- Подвал -------------------------------------------------------------- */
+
+.footer {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(3rem, 1.5rem + 4vw, 6rem);
+  background: var(--c-bg-deep);
+}
+
+.footer__inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 0.5rem + 3vw, 5rem);
+  flex-wrap: wrap;
+  min-height: 180px;
+  padding-block: 2rem;
+}
+
+.footer__links {
+  display: flex;
+  gap: clamp(1.5rem, 0.6rem + 2.5vw, 4rem);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: 1.45;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer__links a:hover {
+    color: var(--c-text);
+  }
+}
+
+.footer .socials--row {
+  margin-left: auto;
+}
+
+/* --- Адаптив ------------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .nav {
+    gap: 1.25rem;
+  }
+
+  .logo__text small {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Меню становится выпадающей панелью. Раньше оно переносилось на вторую
+     строку флекса и утягивало логотип с кнопками к верхнему краю —
+     из-за этого шапка выглядела «прилипшей». */
+  .header__inner {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+  }
+
+  .burger {
+    display: flex;
+    order: 3;
+  }
+
+  .header__account {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin: 0;
+    padding-inline: var(--gutter);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    background: rgba(18, 17, 24, 0.97);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: max-height 0.28s var(--ease);
+  }
+
+  .nav--open {
+    max-height: 26rem;
+    border-bottom: 1px solid var(--c-line);
+  }
+
+  .nav__link {
+    font-size: var(--fs-md);
+    padding-block: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .nav__link:last-child {
+    border-bottom: none;
+  }
+
+  /* Подчёркивание активного пункта тут ни к чему — строки и так разделены. */
+  .nav__link--active::after {
+    display: none;
+  }
+
+  .footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer .socials--row {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --header-h: 72px;
+  }
+
+  .logo__mark {
+    font-size: 2.5rem;
+  }
+
+  .logo__text {
+    font-size: 0.8rem;
+  }
+
+  .account__exit {
+    display: none;
+  }
+}
