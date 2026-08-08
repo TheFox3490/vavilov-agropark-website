@@ -217,7 +217,9 @@
 /* Поля имени идут в строку: фамилия, имя, отчество рядом читаются как одно целое. */
 .admin__staff-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  /* min(...) обязателен: иначе на узком экране трек не сожмётся
+     ниже своего минимума и строка вылезет за края модалки. */
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
   gap: 1rem;
 }
 
@@ -260,7 +262,7 @@
 
 .admin__catalog-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
   gap: 1rem;
 }
 
