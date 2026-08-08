@@ -41,7 +41,20 @@ const browser = await engine.launch();
 let failures = 0;
 
 // Список страниц: статичные плюс по одной карточке проекта и услуги.
-const pages = ["/", "/news", "/startups", "/services", "/contacts", "/privacy", "/consent"];
+const pages = [
+  "/",
+  "/news",
+  "/startups",
+  "/services",
+  "/contacts",
+  "/privacy",
+  "/consent",
+  // Формы входа и регистрации проверяются наравне с остальным: у них свои
+  // широкие элементы (кнопка отправки с min-width), и первый раз именно их
+  // в списке не хватило — переполнение нашлось на живом телефоне, а не тут.
+  "/login",
+  "/register",
+];
 {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
@@ -132,6 +145,56 @@ for (const path of pages) {
 
     await context.close();
   }
+}
+
+/* Значок меню. Полоски бургера — пустые <span> внутри <button>, и ширину им
+   нужно задавать явно: в WebKit до 17-й версии флекс-потомки кнопки не
+   растягиваются по контейнеру, полоски выходили нулевой ширины. Кнопка при
+   этом занимала место и нажималась, поэтому проверка «меню открывается»
+   такое пропускала — смотреть надо именно на размер полосок.
+
+   На Chromium этот прогон зелёный в любом случае: баг WebKit-овский. Ценность
+   появляется, когда установлен WebKit (см. заголовок файла). */
+{
+  console.log("\nЗначок меню (бургер)");
+  const context = await browser.newContext({
+    viewport: { width: 375, height: 780 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(700);
+
+  const bars = await page.evaluate(() => {
+    const burger = document.querySelector(".burger");
+    if (!burger) return null;
+    return {
+      shown: getComputedStyle(burger).display !== "none",
+      sizes: [...burger.querySelectorAll("span")].map((s) => ({
+        w: Math.round(s.getBoundingClientRect().width),
+        h: Math.round(s.getBoundingClientRect().height),
+      })),
+    };
+  });
+
+  if (!bars) {
+    failures++;
+    console.log("  ✗ кнопки меню нет в разметке");
+  } else if (!bars.shown) {
+    failures++;
+    console.log("  ✗ кнопка меню скрыта на мобильной ширине");
+  } else {
+    const bad = bars.sizes.filter((s) => s.w < 10 || s.h < 1);
+    if (bad.length > 0) {
+      failures++;
+      console.log(`  ✗ полоски нулевой ширины: ${JSON.stringify(bars.sizes)}`);
+    } else {
+      console.log(`  ✓ три полоски видны (${bars.sizes.map((s) => `${s.w}×${s.h}`).join(", ")})`);
+    }
+  }
+
+  await context.close();
 }
 
 await browser.close();
