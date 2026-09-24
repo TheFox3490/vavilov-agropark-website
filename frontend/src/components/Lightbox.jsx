@@ -20,18 +20,24 @@ export default function Lightbox({ frames, index, onIndex, onClose, title }) {
   const frame = frames[index];
 
   useEffect(() => {
+    /* Просмотрщик бывает открыт поверх другого окна — поверх новости.
+       Оба слушают клавиатуру на документе, и без мер Esc закрыл бы оба
+       разом. Поэтому здесь слушаем на фазе погружения (capture) — раньше
+       всех обычных обработчиков — и дальше свои клавиши не пропускаем. */
     const onKey = (event) => {
+      const own = event.key === "Escape" || (!single && (event.key === "ArrowRight" || event.key === "ArrowLeft"));
+      if (!own) return;
+      event.stopPropagation();
       if (event.key === "Escape") onClose();
-      if (single) return;
       if (event.key === "ArrowRight") onIndex((index + 1) % frames.length);
       if (event.key === "ArrowLeft") onIndex((index - 1 + frames.length) % frames.length);
     };
-    document.addEventListener("keydown", onKey);
+    document.addEventListener("keydown", onKey, true);
 
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("keydown", onKey, true);
       document.body.style.overflow = previous;
     };
   }, [onClose, onIndex, index, frames.length, single]);
