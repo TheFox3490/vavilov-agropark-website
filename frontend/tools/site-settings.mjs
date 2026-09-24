@@ -22,6 +22,13 @@ await page.waitForTimeout(1200);
 // Запоминаем исходные значения, чтобы вернуть их в конце.
 const before = await fetch(`${B}/api/settings`).then((r) => r.json()).then((d) => d.settings);
 
+/* Всё, что ниже, меняет настройки сайта, поэтому возврат стоит в finally:
+   он выполняется, даже если проверка упала на середине. Раньше возврат шёл
+   последней строкой, и при обрыве тестовый телефон, тестовая политика
+   и выключенные документы оставались в базе — а следующий прогон брал этот
+   мусор за исходное состояние и падал уже на нём. */
+try {
+
 await page.goto(`${B}/admin`, { waitUntil: "domcontentloaded" });
 await page.waitForTimeout(700);
 await page.click('button:has-text("Сайт")');
@@ -85,9 +92,14 @@ await page.goto(`${B}/admin`, { waitUntil: "domcontentloaded" });
 await page.waitForTimeout(700);
 await page.click('button:has-text("Сайт")');
 await page.waitForTimeout(700);
-await page.locator('.admin__site label:has-text("Показывать документы") input[type="checkbox"]').uncheck();
-await page.locator('.admin__site button[type="submit"]').click();
-await page.waitForTimeout(1500);
+// Если документы уже выключены, «снять» галочку ничего не меняет и кнопка
+// сохранения остаётся неактивной — жать её тогда незачем.
+const docsToggle = page.locator('.admin__site label:has-text("Показывать документы") input[type="checkbox"]');
+if (await docsToggle.isChecked()) {
+  await docsToggle.uncheck();
+  await page.locator('.admin__site button[type="submit"]').click();
+  await page.waitForTimeout(1500);
+}
 
 await page.goto(`${B}/team`, { waitUntil: "domcontentloaded" });
 await page.waitForTimeout(1200);
@@ -106,6 +118,7 @@ if (gone !== "Страница не найдена") problems.push(`спрята
 const sitemap = await fetch(`${B}/sitemap.xml`).then((r) => r.text());
 if (sitemap.includes("/privacy")) problems.push("спрятанный документ остался в карте сайта");
 
+} finally {
 // --- Возвращаем как было ---
 await page.evaluate(async ([base, settings]) => {
   const csrf = document.cookie.match(/csrf_access_token=([^;]+)/)[1];
@@ -120,6 +133,7 @@ await page.waitForTimeout(500);
 const after = await fetch(`${B}/api/settings`).then((r) => r.json()).then((d) => d.settings);
 const restored = Object.keys(before).every((k) => before[k] === after[k]);
 if (!restored) problems.push("не удалось вернуть исходные настройки");
+}
 
 await browser.close();
 console.log(problems.length ? `✗ Проблем: ${problems.length}\n  ${problems.join("\n  ")}` : "✓ Настройки сайта правятся из админки и применяются на сайте.");
