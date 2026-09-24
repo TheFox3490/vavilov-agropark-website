@@ -157,14 +157,14 @@ class CatalogItem:
     всё правится из админки.
 
     Примесь, а не общая таблица: у проекта есть поля карусели первого экрана,
-    которых у услуги нет и не будет, а адреса /startups/… и /services/…
+    которых у услуги нет и не будет, а адреса /projects/… и /services/…
     живут в своих пространствах имён — одинаковый slug в разных разделах
     конфликтовать не должен.
     """
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    # Адрес страницы: /startups/vr-tehnum. Складывается из названия,
+    # Адрес страницы: /projects/vr-tehnum. Складывается из названия,
     # но правится вручную — после публикации адрес менять нельзя.
     slug: Mapped[str] = mapped_column(String(80), unique=True, nullable=False, index=True)
 
@@ -253,6 +253,9 @@ class Project(CatalogItem, db.Model):
     card_title: Mapped[str | None] = mapped_column(String(120), nullable=True)
     card_image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
+    # Раздел на сайте теперь называется «Проекты» (/projects), а поле носит
+    # прежнее имя: это колонка в базе с живыми данными, и переименовывать её
+    # миграцией ради невидимого снаружи названия незачем.
     show_on_startups: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     show_in_slider: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -298,7 +301,7 @@ class Project(CatalogItem, db.Model):
 
 
 class ProjectImage(GalleryImage, db.Model):
-    """Кадр в галерее проекта на странице /startups/<slug>."""
+    """Кадр в галерее проекта на странице /projects/<slug>."""
 
     __tablename__ = "project_images"
 

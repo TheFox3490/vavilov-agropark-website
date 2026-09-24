@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 import Hero from "../components/Hero";
 import { auth as authApi } from "../api/client";
+import { useLegalDocsEnabled } from "../context/SettingsContext";
 import "./auth.css";
 
 export default function Register() {
+  const legalDocs = useLegalDocsEnabled();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
@@ -100,10 +102,13 @@ export default function Register() {
 
               {error && <p className="form-error">{error}</p>}
 
-              <p className="auth__consent">
-                Нажимая кнопку регистрации, Вы даёте согласие на{" "}
-                <Link to="/consent">обработку персональных данных</Link>
-              </p>
+              {/* Без документа ссылаться не на что — строку прячем вместе с ним. */}
+              {legalDocs && (
+                <p className="auth__consent">
+                  Нажимая кнопку регистрации, Вы даёте согласие на{" "}
+                  <Link to="/consent">обработку персональных данных</Link>
+                </p>
+              )}
 
               <button type="submit" className="btn btn--light auth__submit" disabled={busy}>
                 {busy ? "Регистрируем…" : "Зарегистрироваться"}

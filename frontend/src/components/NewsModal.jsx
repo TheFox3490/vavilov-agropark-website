@@ -43,11 +43,6 @@ export default function NewsModal({ id, onClose }) {
             <img className="modal__image" src={item.image_url} alt={item.title} />
           )}
           <div className="modal__meta">
-            {item.category && (
-              <span className="news-card__badge" style={{ backgroundColor: item.category.color }}>
-                {item.category.title}
-              </span>
-            )}
             {formatted && <time dateTime={item.created_at}>{formatted}</time>}
           </div>
           <h2 className="modal__title" id="news-modal-title">

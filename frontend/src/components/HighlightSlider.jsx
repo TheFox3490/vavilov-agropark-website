@@ -86,7 +86,7 @@ export default function HighlightSlider() {
         {items.map((project, index) => {
           const image = project.card_image;
           return (
-            <Link key={project.id} to={`/startups/${project.slug}`} className="hero-card">
+            <Link key={project.id} to={`/projects/${project.slug}`} className="hero-card">
               {image && <img src={image} alt="" loading="lazy" />}
               <span className="hero-card__shade" />
               {/* Номер считается от позиции: храни мы его в базе, после

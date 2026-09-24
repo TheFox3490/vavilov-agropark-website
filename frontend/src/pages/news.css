@@ -7,15 +7,10 @@
   margin-bottom: clamp(1.25rem, 0.7rem + 1.6vw, 2.25rem);
 }
 
-/* --- Фильтры категорий --------------------------------------------------- */
+/* --- Переключатели-«чипы» ------------------------------------------------ */
 
-.news__filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.5rem, 0.2rem + 0.9vw, 1.25rem);
-  margin-bottom: clamp(1.25rem, 0.7rem + 1.6vw, 2rem);
-}
-
+/* Раньше это были фильтры категорий новостей; категории с сайта убраны,
+   а сами переключатели остались вкладками админки. */
 .chip {
   padding: 0.85rem 2rem;
   border: 1px solid var(--c-text);
@@ -102,7 +97,7 @@
 }
 
 /* Новость без обложки не должна выглядеть поломанной: вместо пустого
-   прямоугольника рисуем подложку в цвете категории с логотипом центра.
+   прямоугольника рисуем фирменную подложку с логотипом центра.
    Цвет приходит инлайном через --stub-color. */
 .news-card__stub {
   display: grid;
@@ -116,23 +111,6 @@
 .news-card__stub svg {
   font-size: 3.5rem;
   color: rgba(255, 255, 255, 0.28);
-}
-
-.news-card__badge {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.5rem 1.4rem;
-  border-radius: var(--r-sm);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-align: center;
-  /* Длинные названия категорий переносим, а не обрезаем краем карточки. */
-  max-width: calc(100% - 1.5rem);
-  box-shadow: var(--sh-card);
 }
 
 .news-card__overlay {
@@ -197,37 +175,6 @@
   color: #16141d;
   box-shadow: var(--sh-card);
   overflow: auto;
-}
-
-.news-form__select {
-  position: relative;
-  align-self: center;
-  width: 100%;
-  max-width: 17rem;
-}
-
-.news-form__select select {
-  width: 100%;
-  appearance: none;
-  padding: 0.7rem 2.5rem 0.7rem 1.25rem;
-  border: none;
-  border-radius: var(--r-pill);
-  background: var(--c-blue);
-  color: var(--c-text);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-}
-
-.news-form__select svg {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--c-text);
-  pointer-events: none;
 }
 
 .news-form__drop {
@@ -378,13 +325,6 @@
   margin-bottom: 1rem;
   font-size: var(--fs-sm);
   color: var(--c-text-muted);
-}
-
-.modal__meta .news-card__badge {
-  position: static;
-  transform: none;
-  max-width: 100%;
-  white-space: normal;
 }
 
 .modal__title {

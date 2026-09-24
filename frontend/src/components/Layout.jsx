@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 import { useRequests } from "../context/RequestsContext";
-import { useContacts } from "../context/SettingsContext";
+import { useContacts, useLegalDocsEnabled } from "../context/SettingsContext";
 import { LogoMark, MailIcon, PhoneIcon, TelegramIcon, UserIcon, VkIcon } from "./Icons";
 import Shapes from "./Shapes";
 import "./layout.css";
@@ -11,9 +11,9 @@ import "./layout.css";
 const NAV = [
   { to: "/", label: "Главная", end: true },
   { to: "/news", label: "Новости" },
-  { to: "/startups", label: "Стартапы" },
+  { to: "/projects", label: "Проекты" },
   { to: "/services", label: "Услуги" },
-  { to: "/contacts", label: "Контакты" },
+  { to: "/team", label: "Команда" },
 ];
 
 function Logo({ className = "" }) {
@@ -138,22 +138,29 @@ function Header() {
 }
 
 function Footer() {
+  const legalDocs = useLegalDocsEnabled();
+
   return (
     <footer className="footer">
       <div className="footer__inner container">
         <Logo className="logo--footer" />
-        <nav className="footer__links">
-          <Link to="/privacy">
-            Политика
-            <br />
-            конфиденциальности
-          </Link>
-          <Link to="/consent">
-            Соглашение на обработку
-            <br />
-            персональных данных
-          </Link>
-        </nav>
+        {/* Ссылки на документы — только пока документы не спрятаны
+            галочкой в админке. Соцсети прижаты вправо через margin-left:
+            auto, так что без этого блока подвал не перекашивается. */}
+        {legalDocs && (
+          <nav className="footer__links" aria-label="Документы">
+            <Link to="/privacy">
+              Политика
+              <br />
+              конфиденциальности
+            </Link>
+            <Link to="/consent">
+              Соглашение на обработку
+              <br />
+              персональных данных
+            </Link>
+          </nav>
+        )}
         <SocialLinks className="socials--row" />
       </div>
     </footer>

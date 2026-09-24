@@ -89,7 +89,7 @@ export default function AdminSite() {
       <fieldset className="admin__group">
         <legend>Контакты центра</legend>
         <p className="field__hint">
-          Показываются в шапке, в подвале и на странице «Контакты». Адрес заодно
+          Показываются в шапке, в подвале и на странице «Команда». Адрес заодно
           задаёт точку на карте проезда.
         </p>
 
@@ -111,6 +111,26 @@ export default function AdminSite() {
 
       <fieldset className="admin__group">
         <legend>Правовые документы</legend>
+
+        {/* Главный выключатель. Сняв его, центр прячет документы целиком:
+            ссылки в подвале, сами страницы и строку согласия в формах.
+            Тексты ниже не стираются — галочку можно вернуть в любой момент. */}
+        <label className="auth__remember">
+          <input
+            type="checkbox"
+            checked={values.legal_docs_enabled === "on"}
+            onChange={(event) => {
+              setDone(false);
+              setValues({ ...values, legal_docs_enabled: event.target.checked ? "on" : "" });
+            }}
+          />
+          <span>Показывать документы на сайте</span>
+        </label>
+        <p className="field__hint">
+          Если снять — пропадут ссылки в подвале, страницы документов и строка согласия
+          в форме обратной связи и при регистрации. Тексты ниже сохранятся.
+        </p>
+
         <p className="field__hint">
           Разметка простая: строка, начинающаяся с «## », становится заголовком раздела,
           пустая строка разделяет абзацы. Ничего другого не нужно.

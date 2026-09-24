@@ -7,7 +7,7 @@ import CoverField from "../components/CoverField";
 import AdminStaff from "./AdminStaff";
 import Modal from "../components/Modal";
 import NewsForm from "../components/NewsForm";
-import { admin, news as newsApi } from "../api/client";
+import { admin } from "../api/client";
 import { useRequests } from "../context/RequestsContext";
 import "./admin.css";
 
@@ -28,7 +28,7 @@ function formatDate(value) {
 }
 
 /* Настройки двух разделов каталога. Ручки API и подписи — единственное,
-   чем «Стартапы» и «Услуги» отличаются друг от друга в админке. */
+   чем «Проекты» и «Услуги» отличаются друг от друга в админке. */
 const PROJECTS_TAB = {
   api: {
     list: admin.listProjects,
@@ -39,13 +39,13 @@ const PROJECTS_TAB = {
   },
   texts: {
     key: "project",
-    listTitle: "Наши стартапы",
-    basePath: "/startups",
+    listTitle: "Наши проекты",
+    basePath: "/projects",
     addLabel: "Добавить проект",
     emptyText: "Проектов пока нет.",
     editTitle: "Редактирование проекта",
     createTitle: "Новый проект",
-    linkLabel: "Ссылка на стартап",
+    linkLabel: "Ссылка на проект",
     kinds: ["Платформа", "Приложение", "VR тренажёр"],
     featureLabel: "Показывать в блоке «Наши проекты» на главной",
     sliderLabel: "Показывать в карусели на первом экране",
@@ -153,7 +153,6 @@ function RequestsTab() {
 
 function NewsTab() {
   const [items, setItems] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [editing, setEditing] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -167,10 +166,6 @@ function NewsTab() {
 
   useEffect(() => {
     load();
-    newsApi
-      .categories()
-      .then((data) => setCategories(data.items))
-      .catch(() => setCategories([]));
   }, [load]);
 
   async function remove(item) {
@@ -185,7 +180,6 @@ function NewsTab() {
         title: item.title,
         body: item.body,
         image_url: item.image_url,
-        category_id: item.category?.id ?? null,
         is_published: !item.is_published,
       })
       .catch((err) => setError(err.message));
@@ -199,7 +193,6 @@ function NewsTab() {
         title: editing.title,
         body: editing.body,
         image_url: editing.image_url,
-        category_id: editing.category_id || null,
         is_published: editing.is_published,
       });
       setEditing(null);
@@ -214,7 +207,7 @@ function NewsTab() {
       <div className="admin__create">
         <h3>Добавить новость</h3>
         <div className="admin__create-form">
-          <NewsForm categories={categories} onCreated={load} />
+          <NewsForm onCreated={load} />
         </div>
       </div>
 
@@ -235,7 +228,6 @@ function NewsTab() {
               <h4>{item.title}</h4>
               <p className="admin__row-meta">
                 {formatDate(item.created_at)}
-                {item.category ? ` · ${item.category.title}` : ""}
                 {item.author ? ` · ${item.author}` : ""}
                 {item.is_published ? "" : " · черновик"}
               </p>
@@ -250,7 +242,6 @@ function NewsTab() {
                     title: item.title,
                     body: item.body ?? "",
                     image_url: item.image_url ?? "",
-                    category_id: item.category?.id ?? "",
                     is_published: item.is_published,
                   })
                 }
@@ -299,22 +290,6 @@ function NewsTab() {
               onChange={(url) => setEditing((prev) => ({ ...prev, image_url: url }))}
               onBusy={setUploading}
             />
-
-            <label className="field">
-              <span className="field__label">Направление</span>
-              <select
-                className="input"
-                value={editing.category_id}
-                onChange={(event) => setEditing({ ...editing, category_id: event.target.value })}
-              >
-                <option value="">Без категории</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.title}
-                  </option>
-                ))}
-              </select>
-            </label>
 
             <div className="admin__edit-actions">
               <button type="button" className="btn btn--outline btn--sm" onClick={() => setEditing(null)}>

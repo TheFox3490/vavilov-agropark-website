@@ -154,7 +154,7 @@ for (const win of WINDOWS) {
 
   // Центральная карточка ведёт на страницу проекта
   const href = await page.locator(".projects__featured").getAttribute("href");
-  if (!href?.startsWith("/startups/")) problems.push(`центральная карточка ведёт на ${href}`);
+  if (!href?.startsWith("/projects/")) problems.push(`центральная карточка ведёт на ${href}`);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,

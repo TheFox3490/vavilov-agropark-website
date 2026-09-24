@@ -16,7 +16,7 @@ const problems = [];
 
 // 1. Гость оставляет заявку через форму
 const guest = await browser.newPage({ viewport: { width: 1440, height: 950 } });
-await guest.goto(`${B}/contacts`, { waitUntil: "domcontentloaded" });
+await guest.goto(`${B}/team`, { waitUntil: "domcontentloaded" });
 await guest.waitForTimeout(900);
 if (await guest.locator(".nav__badge").count()) problems.push("значок виден гостю");
 await guest.fill('input[placeholder="Ваше имя"]', "Проверка значка");

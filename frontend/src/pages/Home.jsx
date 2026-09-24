@@ -41,8 +41,8 @@ export default function Home() {
               {OFFER.body.map((paragraph) => (
                 <p key={paragraph.slice(0, 40)}>{paragraph}</p>
               ))}
-              <Link to="/startups" className="btn btn--outline">
-                Смотреть стартапы
+              <Link to="/projects" className="btn btn--outline">
+                Смотреть проекты
               </Link>
             </div>
           </div>

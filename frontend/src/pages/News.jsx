@@ -12,10 +12,15 @@ import "./news.css";
 
 const PAGE_SIZE = 5;
 
+/* Категорий у новостей на сайте больше нет. Их никто не заполнял, а фильтры
+   по пустым категориям только путали. В базе поле осталось — у старых
+   новостей оно заполнено, и понадобись категории снова, возвращать их
+   проще, чем заводить заново. Подложка карточки без обложки теперь одного
+   фирменного цвета, а не цвета категории. */
+const STUB_COLOR = "#8400ff55";
+
 export default function News() {
   const { isAdmin } = useAuth();
-  const [categories, setCategories] = useState([]);
-  const [active, setActive] = useState("all");
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -28,19 +33,12 @@ export default function News() {
   const openId = newsId ? Number(newsId) : null;
   usePageTitle("Новости");
 
-  useEffect(() => {
-    newsApi
-      .categories()
-      .then((data) => setCategories(data.items))
-      .catch(() => setCategories([]));
-  }, []);
-
   const load = useCallback(
-    async (category, offset) => {
+    async (offset) => {
       setLoading(true);
       setError("");
       try {
-        const data = await newsApi.feed({ category, offset, limit: PAGE_SIZE });
+        const data = await newsApi.feed({ offset, limit: PAGE_SIZE });
         setItems((prev) => (offset === 0 ? data.items : [...prev, ...data.items]));
         setHasMore(data.has_more);
       } catch (err) {
@@ -53,10 +51,10 @@ export default function News() {
   );
 
   useEffect(() => {
-    load(active, 0);
-  }, [active, load]);
+    load(0);
+  }, [load]);
 
-  const refresh = () => load(active, 0);
+  const refresh = () => load(0);
 
   return (
     <>
@@ -67,36 +65,12 @@ export default function News() {
           <div className="glass news">
             <h2 className="news__title">Новости</h2>
 
-            <div className="news__filters" role="tablist" aria-label="Категории новостей">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={active === "all"}
-                className={`chip ${active === "all" ? "chip--active" : ""}`}
-                onClick={() => setActive("all")}
-              >
-                Все
-              </button>
-              {categories.map((category) => (
-                <button
-                  key={category.slug}
-                  type="button"
-                  role="tab"
-                  aria-selected={active === category.slug}
-                  className={`chip ${active === category.slug ? "chip--active" : ""}`}
-                  onClick={() => setActive(category.slug)}
-                >
-                  {category.title}
-                </button>
-              ))}
-            </div>
-
             {error && <p className="form-error">{error}</p>}
 
             <div className="news__grid">
               {/* Форма добавления стоит первой карточкой в сетке — как в макете,
                   и показывается только администратору. */}
-              {isAdmin && <NewsForm categories={categories} onCreated={refresh} />}
+              {isAdmin && <NewsForm onCreated={refresh} />}
 
               {items.map((item) => (
                 <article
@@ -115,23 +89,15 @@ export default function News() {
                   {item.image_url ? (
                     <img src={item.image_url} alt={item.title} loading="lazy" />
                   ) : (
-                    /* Обложка необязательна: без неё показываем подложку
-                       в цвете категории, а не пустой прямоугольник. */
+                    /* Обложка необязательна: без неё показываем фирменную
+                       подложку, а не пустой прямоугольник. */
                     <div
                       className="news-card__stub"
-                      style={{ "--stub-color": `${item.category?.color ?? "#8400ff"}55` }}
+                      style={{ "--stub-color": STUB_COLOR }}
                       aria-hidden="true"
                     >
                       <LogoMark />
                     </div>
-                  )}
-                  {item.category && (
-                    <span
-                      className="news-card__badge"
-                      style={{ backgroundColor: item.category.color }}
-                    >
-                      {item.category.title}
-                    </span>
                   )}
                   <div className="news-card__overlay">
                     <h3>{item.title}</h3>
@@ -142,20 +108,8 @@ export default function News() {
               {!loading && items.length === 0 && (
                 <div className="news__empty">
                   <LogoMark />
-                  <p>
-                    {active === "all"
-                      ? "Новостей пока нет."
-                      : "В этой категории пока нет новостей."}
-                  </p>
-                  {isAdmin ? (
-                    <span>Добавьте первую через форму слева.</span>
-                  ) : (
-                    active !== "all" && (
-                      <button type="button" className="btn btn--outline btn--sm" onClick={() => setActive("all")}>
-                        Показать все
-                      </button>
-                    )
-                  )}
+                  <p>Новостей пока нет.</p>
+                  {isAdmin && <span>Добавьте первую через форму слева.</span>}
                 </div>
               )}
             </div>
@@ -164,7 +118,7 @@ export default function News() {
               <button
                 type="button"
                 className="btn btn--outline news__more"
-                onClick={() => load(active, items.length)}
+                onClick={() => load(items.length)}
                 disabled={loading}
               >
                 {loading ? "Загружаем…" : "Показать больше"}

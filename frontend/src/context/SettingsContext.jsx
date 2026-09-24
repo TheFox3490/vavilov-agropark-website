@@ -22,6 +22,7 @@ const FALLBACK = {
   legal_consent_title: "Согласие на обработку персональных данных",
   legal_consent_body: "",
   legal_draft_notice: "on",
+  legal_docs_enabled: "on",
 };
 
 const SettingsContext = createContext({ settings: FALLBACK, loading: true });
@@ -55,6 +56,21 @@ export function SettingsProvider({ children }) {
 
 export function useSettings() {
   return useContext(SettingsContext).settings;
+}
+
+export function useSettingsLoading() {
+  return useContext(SettingsContext).loading;
+}
+
+/* Показаны ли политика и согласие. Галочка в админке, вкладка «Сайт».
+
+   Пока ответ сервера в пути, отвечаем «нет»: иначе у центра, который
+   документы спрятал, при каждом заходе ссылки в подвале и строка согласия
+   в форме мелькали бы и исчезали. Если сервер не ответил вовсе — остаётся
+   значение по умолчанию, то есть документы показаны. */
+export function useLegalDocsEnabled() {
+  const { settings, loading } = useContext(SettingsContext);
+  return !loading && settings.legal_docs_enabled === "on";
 }
 
 /* Контакты в виде, удобном для разметки: ссылки на звонок и почту

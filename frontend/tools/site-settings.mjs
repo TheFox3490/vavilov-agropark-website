@@ -30,7 +30,7 @@ await page.waitForTimeout(700);
 const saveButton = page.locator('.admin__site button[type="submit"]');
 if (await saveButton.isEnabled()) problems.push("кнопка сохранения активна без правок");
 
-// --- Контакты ---
+// --- Контакты (страница «Команда») ---
 const phone = page.locator('.admin__site input.input').first();
 await phone.fill("+7 (900) 000-11-22");
 await page.locator('.admin__site input.input').nth(3).fill(""); // ВКонтакте
@@ -39,14 +39,14 @@ if (!(await saveButton.isEnabled())) problems.push("кнопка сохране�
 await saveButton.click();
 await page.waitForTimeout(1500);
 
-await page.goto(`${B}/contacts`, { waitUntil: "domcontentloaded" });
+await page.goto(`${B}/team`, { waitUntil: "domcontentloaded" });
 await page.waitForTimeout(900);
 const contacts = await page.evaluate(() => ({
   text: document.querySelector(".contacts__card:nth-of-type(2)")?.textContent ?? document.body.innerText,
   socials: [...document.querySelectorAll(".footer .socials a")].map((a) => a.getAttribute("aria-label")),
   tel: document.querySelector('a[href^="tel:"]')?.getAttribute("href"),
 }));
-if (!contacts.text.includes("+7 (900) 000-11-22")) problems.push("новый телефон не появился на «Контактах»");
+if (!contacts.text.includes("+7 (900) 000-11-22")) problems.push("новый телефон не появился на «Команде»");
 if (contacts.tel !== "tel:+79000001122") problems.push(`ссылка звонка: ${contacts.tel}`);
 if (contacts.socials.includes("ВКонтакте")) problems.push("пустая ссылка ВК всё равно показывается иконкой");
 
@@ -59,7 +59,8 @@ await page.locator(".admin__doc").first().locator("input.input").fill("Поли�
 await page.locator(".admin__doc").first().locator("textarea").fill(
   "Вводный абзац документа.\n\n## Первый раздел\n\nТекст первого раздела.\n\n## Второй раздел\n\nТекст второго раздела.",
 );
-await page.locator('.admin__site input[type="checkbox"]').uncheck();
+// Галочек в разделе две — берём ту, что про пометку «черновик».
+await page.locator('.admin__site label:has-text("пометку") input[type="checkbox"]').uncheck();
 await page.locator('.admin__site button[type="submit"]').click();
 await page.waitForTimeout(1500);
 
@@ -76,6 +77,34 @@ if (doc.headings.join("|") !== "Первый раздел|Второй разд�
   problems.push(`разделы разобраны неверно: ${doc.headings.join("|")}`);
 if (doc.paragraphs !== 3) problems.push(`абзацев ${doc.paragraphs}, ожидалось 3`);
 if (doc.note) problems.push("пометка про черновик осталась после снятия галочки");
+
+// --- Выключатель документов ---
+// Сняв галочку, центр прячет документы целиком: ссылки в подвале, сами
+// страницы и строку согласия в форме. Форма при этом должна отправляться.
+await page.goto(`${B}/admin`, { waitUntil: "domcontentloaded" });
+await page.waitForTimeout(700);
+await page.click('button:has-text("Сайт")');
+await page.waitForTimeout(700);
+await page.locator('.admin__site label:has-text("Показывать документы") input[type="checkbox"]').uncheck();
+await page.locator('.admin__site button[type="submit"]').click();
+await page.waitForTimeout(1500);
+
+await page.goto(`${B}/team`, { waitUntil: "domcontentloaded" });
+await page.waitForTimeout(1200);
+const hidden = await page.evaluate(() => ({
+  footer: document.querySelectorAll(".footer__links a").length,
+  consent: document.querySelectorAll(".contacts__consent").length,
+}));
+if (hidden.footer !== 0) problems.push("ссылки на документы остались в подвале");
+if (hidden.consent !== 0) problems.push("строка согласия осталась в форме обратной связи");
+
+await page.goto(`${B}/privacy`, { waitUntil: "domcontentloaded" });
+await page.waitForTimeout(1000);
+const gone = await page.locator("h2").first().textContent();
+if (gone !== "Страница не найдена") problems.push(`спрятанный документ открывается: «${gone}»`);
+
+const sitemap = await fetch(`${B}/sitemap.xml`).then((r) => r.text());
+if (sitemap.includes("/privacy")) problems.push("спрятанный документ остался в карте сайта");
 
 // --- Возвращаем как было ---
 await page.evaluate(async ([base, settings]) => {

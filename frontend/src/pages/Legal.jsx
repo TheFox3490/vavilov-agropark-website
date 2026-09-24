@@ -1,6 +1,7 @@
 import Hero from "../components/Hero";
-import { useSettings } from "../context/SettingsContext";
+import { useSettings, useSettingsLoading } from "../context/SettingsContext";
 import usePageTitle from "../usePageTitle";
+import NotFound from "./NotFound";
 import "./cards.css";
 
 /* Политика конфиденциальности и согласие на обработку данных.
@@ -29,7 +30,13 @@ export default function Legal({ kind }) {
   const title = settings[`legal_${kind}_title`];
   const blocks = parse(settings[`legal_${kind}_body`]);
   const draft = settings.legal_draft_notice === "on";
+  const loading = useSettingsLoading();
   usePageTitle(title);
+
+  /* Документы спрятаны галочкой в админке — для посетителя их нет.
+     Ждём ответа сервера, прежде чем решать: иначе открытая ссылка
+     на действующий документ на миг показывала бы «не найдено». */
+  if (!loading && settings.legal_docs_enabled !== "on") return <NotFound />;
 
   return (
     <>

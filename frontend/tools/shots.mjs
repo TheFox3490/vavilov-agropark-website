@@ -18,7 +18,7 @@ const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900, mobile: false },
 ];
 
-const PAGES = ["/", "/news", "/services", "/startups", "/contacts", "/login"];
+const PAGES = ["/", "/news", "/services", "/projects", "/team", "/login"];
 
 const browser = await chromium.launch();
 await mkdir(OUT, { recursive: true });

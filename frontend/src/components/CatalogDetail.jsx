@@ -8,7 +8,7 @@ import "../pages/cards.css";
 import usePageTitle from "../usePageTitle";
 import "../pages/detail.css";
 
-/* Страница отдельной карточки каталога: /startups/vr-tehnum, /services/vr-ar.
+/* Страница отдельной карточки каталога: /projects/vr-tehnum, /services/vr-ar.
 
    ОТСТУПЛЕНИЕ ОТ МАКЕТА: таких экранов дизайнер не рисовала. Собраны
    из уже существующих блоков — стеклянная панель, те же скругления,
@@ -101,7 +101,7 @@ export default function CatalogDetail({
                   ) : (
                     /* Адрес у карточки может быть не задан — тогда ведём
                        на форму обратной связи, а не в никуда. */
-                    <Link to="/contacts" className="btn btn--blue">
+                    <Link to="/team" className="btn btn--blue">
                       Связаться с нами
                     </Link>
                   )}

@@ -117,7 +117,7 @@ export default function ProjectsCarousel({ title }) {
         )}
 
         <Link
-          to={`/startups/${current.slug}`}
+          to={`/projects/${current.slug}`}
           className="projects__featured"
           onClick={onCardClick}
           /* Ссылки браузер даёт перетаскивать: начатое перетаскивание

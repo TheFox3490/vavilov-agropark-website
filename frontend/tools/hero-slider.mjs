@@ -62,7 +62,7 @@ for (const win of WINDOWS) {
     if (!item) return;
     if (card.name !== item.slider_title)
       problems.push(`карточка ${i + 1}: имя «${card.name}» вместо «${item.slider_title}»`);
-    if (card.href !== `/startups/${item.slug}`)
+    if (card.href !== `/projects/${item.slug}`)
       problems.push(`карточка ${i + 1} ведёт на ${card.href}`);
     // Запасные варианты кадра: что-то показать обязаны всегда, если у проекта
     // есть хоть одна картинка.
@@ -83,7 +83,7 @@ for (const win of WINDOWS) {
   await page.locator(".hero-card").first().click();
   await page.waitForTimeout(800);
   const path = new URL(page.url()).pathname;
-  if (path !== `/startups/${expected[0].slug}`) problems.push(`переход привёл на ${path}`);
+  if (path !== `/projects/${expected[0].slug}`) problems.push(`переход привёл на ${path}`);
 
   if (problems.length) bad++;
   console.log(

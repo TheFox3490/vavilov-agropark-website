@@ -38,12 +38,12 @@ const service = await fetch(`${B}/api/services`).then((r) => r.json());
 const cases = [
   ["/", null],
   ["/news", null],
-  ["/startups", null],
+  ["/projects", null],
   ["/services", null],
-  ["/contacts", null],
+  ["/team", null],
   ["/privacy", null],
   ...(news.items.length ? [[`/news/${news.items[0].id}`, news.items[0].title]] : []),
-  [`/startups/${project.items[0].slug}`, project.items[0].title],
+  [`/projects/${project.items[0].slug}`, project.items[0].title],
   [`/services/${service.items[0].slug}`, service.items[0].title],
 ];
 if (!news.items.length) console.log("  (новостей нет — адрес новости не проверяется)");
@@ -68,7 +68,7 @@ for (const path of ["/admin", "/login"]) {
 }
 
 // Снятое с публикации не должно раскрываться заголовком
-const draft = await grab("/startups/такого-нет");
+const draft = await grab("/projects/такого-нет");
 if (draft.canonical?.includes("такого-нет") && draft.title.includes("—") === false)
   problems.push("несуществующий адрес отдаёт непонятную голову");
 
@@ -105,10 +105,10 @@ if (!new URL(page.url()).pathname.startsWith("/news/")) problems.push("адре�
 // 4. Заголовок вкладки меняется при переходах
 await page.goto(`${B}/news`, { waitUntil: "domcontentloaded" });
 await page.waitForTimeout(600);
-await page.click('a[href="/startups"]');
+await page.click('a[href="/projects"]');
 await page.waitForTimeout(900);
 const title = await page.title();
-if (!title.startsWith("Наши стартапы")) problems.push(`заголовок вкладки после перехода: ${title}`);
+if (!title.startsWith("Наши проекты")) problems.push(`заголовок вкладки после перехода: ${title}`);
 
 await browser.close();
 
@@ -119,7 +119,7 @@ if (!robots.includes("Disallow: /admin/")) problems.push("в robots.txt откр
 const sitemap = await fetch(`${B}/sitemap.xml`).then((r) => r.text());
 const count = (sitemap.match(/<url>/g) ?? []).length;
 const expectedCount = 7 + news.items.length + project.items.length + service.items.length;
-if (!sitemap.includes(`/startups/${project.items[0].slug}`))
+if (!sitemap.includes(`/projects/${project.items[0].slug}`))
   problems.push("в карте сайта нет страницы проекта");
 if (news.items.length && !sitemap.includes(`/news/${news.items[0].id}`))
   problems.push("в карте сайта нет новости");

@@ -33,7 +33,7 @@ for (const win of WINDOWS) {
     userAgent: win.m ? devices["iPhone 12"].userAgent : undefined,
   });
   const page = await ctx.newPage();
-  await page.goto(`${B}/startups/${SLUG}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${B}/projects/${SLUG}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(600);
 
   const count = await page.locator(".gallery__thumb").count();

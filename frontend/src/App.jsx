@@ -6,19 +6,19 @@ import { useAuth } from "./context/AuthContext.jsx";
 import Account from "./pages/Account.jsx";
 import Admin from "./pages/Admin.jsx";
 import Confirm from "./pages/Confirm.jsx";
-import Contacts from "./pages/Contacts.jsx";
 import Home from "./pages/Home.jsx";
 import Legal from "./pages/Legal.jsx";
 import Login from "./pages/Login.jsx";
 import News from "./pages/News.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Project from "./pages/Project.jsx";
+import Projects from "./pages/Projects.jsx";
 import Register from "./pages/Register.jsx";
 import RegisterSuccess from "./pages/RegisterSuccess.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import Service from "./pages/Service.jsx";
 import Services from "./pages/Services.jsx";
-import Startups from "./pages/Startups.jsx";
+import Team from "./pages/Team.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -53,11 +53,13 @@ export default function App() {
           {/* Новость открывается поверх ленты, но своим адресом:
               так ссылкой можно поделиться, и робот её видит. */}
           <Route path="news/:newsId" element={<News />} />
-          <Route path="startups" element={<Startups />} />
-          <Route path="startups/:slug" element={<Project />} />
+          {/* Прежние адреса /startups и /contacts внутренний nginx постоянно
+              перенаправляет на /projects и /team — см. nginx.conf. */}
+          <Route path="projects" element={<Projects />} />
+          <Route path="projects/:slug" element={<Project />} />
           <Route path="services" element={<Services />} />
           <Route path="services/:slug" element={<Service />} />
-          <Route path="contacts" element={<Contacts />} />
+          <Route path="team" element={<Team />} />
 
           <Route path="account" element={<Account />} />
           <Route path="login" element={<Login />} />

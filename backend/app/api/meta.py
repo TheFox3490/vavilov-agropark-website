@@ -20,7 +20,7 @@ from html import escape
 from flask import Blueprint, Response, current_app, request
 
 from ..models import News, Project, Service
-from ..settings import all_settings
+from ..settings import all_settings, legal_docs_enabled
 
 bp = Blueprint("meta", __name__, url_prefix="/api/meta")
 # robots.txt и карта сайта: их адреса роботы ищут в корне, поэтому nginx
@@ -45,9 +45,9 @@ DEFAULT_IMAGE = "/media/glavnaya--imgbackground-1-8f81ae.webp"
 PAGES = {
     "/": (SITE_TITLE, SITE_DESCRIPTION),
     "/news": ("Новости", "Новости центра агроробототехники и VR/AR технологий: мероприятия, образовательные курсы, робототехника."),
-    "/startups": ("Наши стартапы", "Проекты центра: VR-тренажёры, приложения дополненной реальности и платформы для агропромышленного комплекса."),
+    "/projects": ("Наши проекты", "Проекты центра: VR-тренажёры, приложения дополненной реальности и платформы для агропромышленного комплекса."),
     "/services": ("Наши услуги", "Услуги центра: разработка VR/AR, лазерная резка и маркировка, образовательные курсы, прототипирование."),
-    "/contacts": ("Контакты", "Как связаться с центром агроробототехники и VR/AR технологий: адрес, телефон, почта и форма обратной связи."),
+    "/team": ("Команда", "Команда центра агроробототехники и VR/AR технологий, адрес, телефон, почта и форма обратной связи."),
     "/login": ("Вход в аккаунт", SITE_DESCRIPTION),
     "/register": ("Регистрация", SITE_DESCRIPTION),
     "/account": ("Личный кабинет", SITE_DESCRIPTION),
@@ -86,7 +86,7 @@ def _lookup(path: str) -> tuple[str, str, str | None]:
         if item:
             return item.title, _clean(item.body) or SITE_DESCRIPTION, item.image_url
 
-    if m := re.fullmatch(r"/startups/([\w-]+)", path):
+    if m := re.fullmatch(r"/projects/([\w-]+)", path):
         item = Project.query.filter_by(slug=m.group(1), is_published=True).first()
         if item:
             return item.title, _clean(item.summary or item.body) or SITE_DESCRIPTION, item.image_url
@@ -96,10 +96,11 @@ def _lookup(path: str) -> tuple[str, str, str | None]:
         if item:
             return item.title, _clean(item.summary or item.body) or SITE_DESCRIPTION, item.image_url
 
-    if path == "/privacy":
-        return all_settings()["legal_privacy_title"], SITE_DESCRIPTION, None
-    if path == "/consent":
-        return all_settings()["legal_consent_title"], SITE_DESCRIPTION, None
+    # Спрятанные в админке документы для робота не существуют: страница
+    # отдаёт «не найдено», и заголовок у неё общий, а не название документа.
+    if path in ("/privacy", "/consent") and legal_docs_enabled():
+        settings = all_settings()
+        return settings[f"legal_{path[1:]}_title"], SITE_DESCRIPTION, None
 
     return SITE_TITLE, SITE_DESCRIPTION, None
 
@@ -130,7 +131,7 @@ def head_fragment():
         '<meta property="og:locale" content="ru_RU" />',
         '<meta name="twitter:card" content="summary_large_image" />',
     ]
-    if path.startswith(NOINDEX):
+    if path.startswith(NOINDEX) or (path in ("/privacy", "/consent") and not legal_docs_enabled()):
         tags.append('<meta name="robots" content="noindex, nofollow" />')
 
     # Кэш держим коротким: заголовок новости может поменяться в админке,
@@ -161,17 +162,17 @@ def sitemap():
     urls: list[tuple[str, str | None, str]] = [
         ("/", None, "daily"),
         ("/news", None, "daily"),
-        ("/startups", None, "weekly"),
+        ("/projects", None, "weekly"),
         ("/services", None, "weekly"),
-        ("/contacts", None, "monthly"),
-        ("/privacy", None, "yearly"),
-        ("/consent", None, "yearly"),
+        ("/team", None, "monthly"),
     ]
+    if legal_docs_enabled():
+        urls += [("/privacy", None, "yearly"), ("/consent", None, "yearly")]
 
     for item in News.query.filter_by(is_published=True).all():
         stamp = item.updated_at or item.created_at
         urls.append((f"/news/{item.id}", stamp.date().isoformat() if stamp else None, "monthly"))
-    for model, prefix in ((Project, "/startups"), (Service, "/services")):
+    for model, prefix in ((Project, "/projects"), (Service, "/services")):
         for item in model.query.filter_by(is_published=True).all():
             stamp = item.updated_at or item.created_at
             urls.append((f"{prefix}/{item.slug}", stamp.date().isoformat() if stamp else None, "monthly"))

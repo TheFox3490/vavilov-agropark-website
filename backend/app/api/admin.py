@@ -145,17 +145,22 @@ def _payload_to_news(item: News, data: dict) -> str | None:
     if len(title) > 255:
         return "Заголовок длиннее 255 символов"
 
-    category = None
-    category_id = data.get("category_id")
-    if category_id:
-        category = db.session.get(Category, int(category_id))
-        if category is None:
-            return "Категория не найдена"
+    # Категорию трогаем, только если её прислали. На сайте категорий больше
+    # нет, и админка поле не отправляет, — а у старых новостей оно в базе
+    # заполнено. Без этой проверки любая правка новости молча стирала бы
+    # категорию, и вернуть их потом было бы уже не к чему.
+    if "category_id" in data:
+        category = None
+        category_id = data.get("category_id")
+        if category_id:
+            category = db.session.get(Category, int(category_id))
+            if category is None:
+                return "Категория не найдена"
+        item.category = category
 
     item.title = title
     item.body = body
     item.image_url = (data.get("image_url") or "").strip() or None
-    item.category = category
     if "is_published" in data:
         item.is_published = bool(data["is_published"])
     return None

@@ -44,9 +44,9 @@ let failures = 0;
 const pages = [
   "/",
   "/news",
-  "/startups",
+  "/projects",
   "/services",
-  "/contacts",
+  "/team",
   "/privacy",
   "/consent",
   // Формы входа и регистрации проверяются наравне с остальным: у них свои
@@ -58,7 +58,7 @@ const pages = [
 {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await context.newPage();
-  for (const [listing, prefix] of [["/startups", "/startups/"], ["/services", "/services/"]]) {
+  for (const [listing, prefix] of [["/projects", "/projects/"], ["/services", "/services/"]]) {
     await page.goto(`${BASE}${listing}`, { waitUntil: "domcontentloaded" });
     // Список приходит запросом к API, поэтому ждём появления самих ссылок:
     // без этого разбор находил пустую страницу и карточки не проверялись.

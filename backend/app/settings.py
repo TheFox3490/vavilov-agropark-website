@@ -92,6 +92,11 @@ DEFAULTS: dict[str, str] = {
     # Пока формулировки не утвердил университет, под документом стоит пометка.
     # Снимается галочкой в админке — это признак, что текст настоящий.
     "legal_draft_notice": "on",
+    # Показывать ли документы вообще. Сняв галочку, центр прячет их целиком:
+    # ссылки в подвале, страницы /privacy и /consent, строку согласия в форме
+    # обратной связи и при регистрации. Тексты при этом не стираются —
+    # вернуть галочку, и всё появится как было.
+    "legal_docs_enabled": "on",
 }
 
 # Длина по месту применения: адрес почты и телефон короткие, документ — нет.
@@ -117,6 +122,11 @@ def all_settings() -> dict[str, str]:
         if row.key in DEFAULTS:
             values[row.key] = row.value
     return values
+
+
+def legal_docs_enabled() -> bool:
+    """Показаны ли на сайте политика и согласие."""
+    return all_settings()["legal_docs_enabled"] == "on"
 
 
 def update_settings(data: dict) -> str | None:

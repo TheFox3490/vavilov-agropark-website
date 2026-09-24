@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 
 import { admin } from "../api/client";
-import { ChevronIcon, PlusIcon } from "./Icons";
+import { PlusIcon } from "./Icons";
 
-const EMPTY = { title: "", body: "", category_id: "", image_url: "" };
+const EMPTY = { title: "", body: "", image_url: "" };
 
 /* Встроенная в сетку форма добавления новости — как первая карточка в макете.
    ОТСТУПЛЕНИЕ ОТ МАКЕТА: добавлено поле заголовка. В макете его нет, но модалка
    с раскрытой новостью заголовок показывает, значит без него новость неполна. */
-export default function NewsForm({ categories, onCreated }) {
+export default function NewsForm({ onCreated }) {
   const [form, setForm] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -38,10 +38,7 @@ export default function NewsForm({ categories, onCreated }) {
     setBusy(true);
     setError("");
     try {
-      await admin.createNews({
-        ...form,
-        category_id: form.category_id ? Number(form.category_id) : null,
-      });
+      await admin.createNews(form);
       setForm(EMPTY);
       onCreated?.();
     } catch (err) {
@@ -53,18 +50,6 @@ export default function NewsForm({ categories, onCreated }) {
 
   return (
     <form className="news-form" onSubmit={submit}>
-      <div className="news-form__select">
-        <select value={form.category_id} onChange={update("category_id")}>
-          <option value="">Направление</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.title}
-            </option>
-          ))}
-        </select>
-        <ChevronIcon />
-      </div>
-
       <button
         type="button"
         className="news-form__drop"

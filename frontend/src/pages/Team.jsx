@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import Hero from "../components/Hero";
-import { useContacts } from "../context/SettingsContext";
+import { useContacts, useLegalDocsEnabled } from "../context/SettingsContext";
 import usePageTitle from "../usePageTitle";
 import StaffCarousel from "../components/StaffCarousel";
 import { contact } from "../api/client";
@@ -10,9 +10,14 @@ import "./contacts.css";
 
 const EMPTY = { name: "", phone: "", message: "", consent: false };
 
-export default function Contacts() {
-  usePageTitle("Контакты");
+/* Раздел назывался «Контакты» и жил по адресу /contacts. Сейчас это
+   «Команда»: главное на странице — состав центра, а адрес и телефон
+   и так стоят в шапке и подвале каждой страницы. Прежний адрес внутренний
+   nginx постоянно перенаправляет сюда. */
+export default function Team() {
+  usePageTitle("Команда");
   const contacts = useContacts();
+  const legalDocs = useLegalDocsEnabled();
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState({ state: "idle", text: "" });
 
@@ -98,13 +103,18 @@ export default function Contacts() {
                 required
               />
 
-              <label className="contacts__consent">
-                <input type="checkbox" checked={form.consent} onChange={update("consent")} required />
-                <span>
-                  <Link to="/consent">Согласие</Link> и <Link to="/privacy">политика</Link> обработки
-                  персональных данных
-                </span>
-              </label>
+              {/* Документы центр может спрятать галочкой в админке. Тогда
+                  строки согласия нет: ссылаться не на что, а обязательная
+                  галочка без документа только мешала бы отправить заявку. */}
+              {legalDocs && (
+                <label className="contacts__consent">
+                  <input type="checkbox" checked={form.consent} onChange={update("consent")} required />
+                  <span>
+                    <Link to="/consent">Согласие</Link> и <Link to="/privacy">политика</Link> обработки
+                    персональных данных
+                  </span>
+                </label>
+              )}
 
               {status.state === "error" && <p className="form-error">{status.text}</p>}
               {status.state === "done" && <p className="form-note">{status.text}</p>}

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { staff as staffApi } from "../api/client";
 import { ChevronIcon, MailIcon, PhoneIcon, TelegramIcon, UserIcon, VkIcon } from "./Icons";
 
-/* Состав центра — карусель карточек на странице «Контакты».
+/* Состав центра — карусель карточек на странице «Команда».
 
    ОТСТУПЛЕНИЕ ОТ МАКЕТА: там нарисована одна карточка руководителя.
    Центру нужен весь состав, редактируемый из админки, поэтому карточка

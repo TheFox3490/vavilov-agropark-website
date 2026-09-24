@@ -47,7 +47,7 @@ for (const [kind, path] of [
   const res = await call(path, "POST", { title: `Проверка переносов (${kind})`, body: BODY });
   made.push([path, res.item.id]);
 
-  const page2 = `${kind === "проект" ? "/startups" : "/services"}/${res.item.slug}`;
+  const page2 = `${kind === "проект" ? "/projects" : "/services"}/${res.item.slug}`;
   await page.goto(B + page2, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(700);
   const seen = await page.evaluate(() => {

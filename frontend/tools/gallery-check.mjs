@@ -35,7 +35,7 @@ for (const vp of VPS) {
     isMobile: vp.m, hasTouch: vp.m, userAgent: vp.m ? devices["iPhone 12"].userAgent : undefined,
   });
   const page = await ctx.newPage();
-  await page.goto(`${B}/startups/${SLUG}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${B}/projects/${SLUG}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(600);
 
   const problems = [];

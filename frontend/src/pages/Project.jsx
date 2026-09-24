@@ -7,11 +7,11 @@ export default function Project() {
   return (
     <CatalogDetail
       fetchItem={load}
-      backTo="/startups"
-      backLabel="Все стартапы"
+      backTo="/projects"
+      backLabel="Все проекты"
       notFoundTitle="Проект не найден"
       notFoundText="Возможно, он снят с публикации или адрес набран с опечаткой."
-      linkLabel="Перейти к стартапу"
+      linkLabel="Перейти к проекту"
       upperTitle
     />
   );
